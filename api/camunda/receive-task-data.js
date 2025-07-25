@@ -20,18 +20,23 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('=== CAMUNDA -> EXTERNAL API TEST ===');
-    console.log('Method:', req.method);
-    console.log('Headers:', req.headers);
-    console.log('Query params:', req.query);
-    console.log('Body:', req.body);
-    console.log('Timestamp:', new Date().toISOString());
+    const requestId = Math.random().toString(36).substring(7);
+    
+    console.log(`🚀 [${requestId}] === CAMUNDA -> EXTERNAL API TEST ===`);
+    console.log(`📅 [${requestId}] Timestamp: ${new Date().toISOString()}`);
+    console.log(`🔗 [${requestId}] Method: ${req.method}`);
+    console.log(`🌐 [${requestId}] URL: ${req.url}`);
+    console.log(`📋 [${requestId}] Headers:`, req.headers);
+    console.log(`🔍 [${requestId}] Query params:`, req.query);
+    console.log(`📦 [${requestId}] Body:`, req.body);
 
     // For GET requests, return a test response
     if (req.method === 'GET') {
+      console.log(`✅ [${requestId}] GET request - returning test response`);
       return res.status(200).json({
         success: true,
         message: 'External API endpoint is working',
+        requestId: requestId,
         timestamp: new Date().toISOString(),
         method: 'GET',
         query: req.query,
@@ -51,6 +56,7 @@ export default async function handler(req, res) {
 
     // Log the received data
     const logData = {
+      requestId: requestId,
       timestamp: new Date().toISOString(),
       taskId,
       processInstanceId,
@@ -61,7 +67,8 @@ export default async function handler(req, res) {
       headers: req.headers
     };
 
-    console.log('Received data from Camunda:', JSON.stringify(logData, null, 2));
+    console.log(`📥 [${requestId}] Received data from Camunda:`, JSON.stringify(logData, null, 2));
+    console.log(`✅ [${requestId}] Data processing completed successfully`);
 
     // Store the data (in a real scenario, you might save to a database)
     // For now, we'll just log it and return a success response
@@ -70,6 +77,7 @@ export default async function handler(req, res) {
     res.status(200).json({
       success: true,
       message: 'Data received successfully from Camunda',
+      requestId: requestId,
       receivedAt: new Date().toISOString(),
       dataReceived: {
         taskId,
@@ -87,7 +95,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Error processing data from Camunda:', error);
+    console.error('❌ Error processing data from Camunda:', error);
     
     res.status(500).json({
       success: false,

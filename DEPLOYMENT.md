@@ -33,6 +33,7 @@ After deployment, your APIs will be available at:
 #### Camunda -> External API Testing
 - `https://your-app.vercel.app/api/camunda/receive-task-data` - Receive data from Camunda (for testing reverse flow)
 - `https://your-app.vercel.app/api/test` - Simple test endpoint for connectivity verification
+- `https://your-app.vercel.app/api/dashboard` - API status dashboard and monitoring
 
 ### 4. Camunda Integration
 
@@ -109,9 +110,41 @@ npm run lint
 3. Configure the external task to wait for completion
 4. The form will complete the task with all form data as variables
 
+## Complete Flow Testing
+
+### Step-by-Step Process:
+
+1. **Start Camunda Process**: Run your KYC process in Camunda
+2. **External Task**: Process reaches external task, opens your frontend
+3. **Fill Form**: User fills KYC form and clicks "Submit"
+4. **Submit to Camunda**: Frontend calls `/api/camunda/submit-kyc`
+5. **Process Continues**: Camunda completes external task, continues to next step
+6. **HTTP Task**: Camunda reaches HTTP task that calls your API
+7. **API Receives Data**: Your `/api/camunda/receive-task-data` receives the data
+8. **Logs Generated**: Check Vercel logs to see the data
+
+### How to Monitor:
+
+1. **Vercel Dashboard**: Go to your Vercel project → Functions → View logs
+2. **API Dashboard**: Visit `https://your-app.vercel.app/api/dashboard`
+3. **Real-time Logs**: Look for logs with emojis and request IDs like `🚀 [abc123]`
+
+### What You'll See in Logs:
+
+```
+🚀 [abc123] === CAMUNDA -> EXTERNAL API TEST ===
+📅 [abc123] Timestamp: 2024-01-15T10:30:00.000Z
+🔗 [abc123] Method: POST
+📦 [abc123] Body: { taskId: "123", processInstanceId: "456", ... }
+📥 [abc123] Received data from Camunda: { ... }
+✅ [abc123] Data processing completed successfully
+```
+
 ## Troubleshooting
 
-- Check Vercel function logs for API errors
-- Ensure Camunda server is accessible from Vercel
-- Verify environment variables are set correctly
-- Test with a valid task ID from your Camunda process 
+- **Check Vercel function logs** for API errors (look for emoji logs)
+- **Visit `/api/dashboard`** to see API status
+- **Test connectivity** with `/api/test` endpoint
+- **Ensure Camunda server** is accessible from Vercel
+- **Verify environment variables** are set correctly
+- **Test with a valid task ID** from your Camunda process 
