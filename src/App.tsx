@@ -5,7 +5,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import './App.css';
 
 function App() {
- const [processInstanceId, setProcessInstanceId] = useState<string>('');
+ const [taskId, setTaskId] = useState<string>('');
  const [isSubmitting, setIsSubmitting] = useState(false);
  const [isSubmitted, setIsSubmitted] = useState(false);
  const [error, setError] = useState<string>('');
@@ -33,20 +33,20 @@ function App() {
  const foreignBeneficialOwnersOrPEPs = watch('ongoingMonitoring.foreignBeneficialOwnersOrPEPs');
 
  useEffect(() => {
-  // Get process instance ID from URL parameters
+  // Get task ID from URL parameters
   const urlParams = new URLSearchParams(window.location.search);
-  const id = urlParams.get('processInstanceId');
+  const id = urlParams.get('taskId');
   if (id) {
-   setProcessInstanceId(id);
-   toast.success(`Connected to process instance: ${id}`);
+   setTaskId(id);
+   toast.success(`Connected to task: ${id}`);
   } else {
-   setError('No process instance ID provided in URL');
+   setError('No task ID provided in URL');
   }
  }, []);
 
  const onSubmit = async (data: KYCFormData['formData']) => {
-  if (!processInstanceId) {
-   toast.error('No process instance ID available');
+  if (!taskId) {
+   toast.error('No task ID available');
    return;
   }
 
@@ -58,11 +58,11 @@ function App() {
   const submitPromise = new Promise(async (resolve, reject) => {
    try {
     const formData: KYCFormData = {
-     processInstanceId,
+     taskId,
      formData: data
     };
 
-    // TODO: Replace with your Camunda API endpoint
+    // TODO: Replace with your Camunda external task API endpoint
     const response = await fetch('/api/camunda/submit-kyc', {
      method: 'POST',
      headers: {
@@ -97,24 +97,24 @@ function App() {
   });
  };
 
- const [enteredProcessId, setEnteredProcessId] = useState<string>('');
+ const [enteredTaskId, setEnteredTaskId] = useState<string>('');
  const [isRedirecting, setIsRedirecting] = useState(false);
 
- const handleProcessIdSubmit = (e: React.FormEvent) => {
+ const handleTaskIdSubmit = (e: React.FormEvent) => {
   e.preventDefault();
-  if (enteredProcessId.trim()) {
+  if (enteredTaskId.trim()) {
    setIsRedirecting(true);
    toast.loading('Redirecting to KYC form...', { id: 'redirect' });
 
    const currentUrl = new URL(window.location.href);
-   currentUrl.searchParams.set('processInstanceId', enteredProcessId.trim());
+   currentUrl.searchParams.set('taskId', enteredTaskId.trim());
    window.location.href = currentUrl.toString();
   } else {
-   toast.error('Please enter a process instance ID');
+   toast.error('Please enter a task ID');
   }
  };
 
- if (error && !processInstanceId) {
+ if (error && !taskId) {
   return (
    <div className="container">
     <Toaster
@@ -138,20 +138,20 @@ function App() {
     <div className="text-center">
      <h1 className="text-3xl font-bold text-gray-800 mb-6">KYC Form</h1>
      <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
-      <h2 className="text-xl font-semibold text-gray-700 mb-4">Enter Process Instance ID</h2>
-      <p className="text-gray-600 mb-6">Please provide the process instance ID to continue with the KYC form.</p>
+      <h2 className="text-xl font-semibold text-gray-700 mb-4">Enter Task ID</h2>
+      <p className="text-gray-600 mb-6">Please provide the task ID to continue with the KYC form.</p>
 
-      <form onSubmit={handleProcessIdSubmit} className="space-y-4">
+      <form onSubmit={handleTaskIdSubmit} className="space-y-4">
        <div>
-        <label htmlFor="processId" className="block text-sm font-medium text-gray-700 mb-2">
-         Process Instance ID
+        <label htmlFor="taskId" className="block text-sm font-medium text-gray-700 mb-2">
+         Task ID
         </label>
         <input
          type="text"
-         id="processId"
-         value={enteredProcessId}
-         onChange={(e) => setEnteredProcessId(e.target.value)}
-         placeholder="Enter process instance ID"
+         id="taskId"
+         value={enteredTaskId}
+         onChange={(e) => setEnteredTaskId(e.target.value)}
+         placeholder="Enter task ID"
          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
          required
         />
@@ -194,7 +194,7 @@ function App() {
     <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
      <h2 className="text-2xl font-bold text-green-800 mb-4">Thank you!</h2>
      <p className="text-green-700 mb-2">Your KYC information has been successfully submitted to Camunda.</p>
-     <p className="text-sm text-green-600">Process Instance ID: <span className="font-mono bg-green-100 px-2 py-1 rounded">{processInstanceId}</span></p>
+     <p className="text-sm text-green-600">Task ID: <span className="font-mono bg-green-100 px-2 py-1 rounded">{taskId}</span></p>
     </div>
    </div>
   );
@@ -228,7 +228,7 @@ function App() {
    />
 
    <h1 className="text-3xl font-bold text-gray-800 mb-4">KYC Form</h1>
-   <p className="text-sm text-gray-600 mb-6">Process Instance ID: <span className="font-mono bg-gray-100 px-2 py-1 rounded">{processInstanceId}</span></p>
+   <p className="text-sm text-gray-600 mb-6">Task ID: <span className="font-mono bg-gray-100 px-2 py-1 rounded">{taskId}</span></p>
 
    <form onSubmit={handleSubmit(onSubmit, (errors) => {
     // Show validation errors as toasts

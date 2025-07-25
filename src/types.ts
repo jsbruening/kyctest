@@ -1,5 +1,5 @@
 export interface KYCFormData {
-  processInstanceId: string;
+  taskId: string;
   formData: {
     // Section 1: Basic Customer Identification
     customerType: 'individual' | 'entity';
